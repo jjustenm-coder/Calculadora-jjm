@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>Calculadora Científica JJM</title>
+    <style>
+        body {
+            background-color: #c1c1c1;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .jjm { text-align: left; padding-left: 10%; font-weight: bold; color: #555; }
+
+        .calculator {
+            background-color: silver;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 500px;
+            border: solid #80808090 1px;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 12px 12px 7px rgba(0,0,0,.25), -6px -6px 1px rgba(0,0,0,.1);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+
+        .display { text-align: right; margin-bottom: 15px; }
+        .display h3 { color: #ba4a00; font-size: 14px; margin: 0; height: 20px; }
+        .display h2 { 
+            height: 35px; font-size: 24px; background: #3498db; color: #fff; 
+            border: 2px solid #696969; border-radius: 5px; padding: 5px; margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .display input {
+            width: 100%; box-sizing: border-box; background: #3498db; border: 2px solid #696969;
+            border-radius: 5px; font-size: 40px; text-align: right; padding: 10px; color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .button, .oper, .btn {
+            height: 60px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none;
+            background-color: white; color: tomato; transition: transform 0.1s;
+            box-shadow: 0 4px #bbb;
+        }
+
+        .button:active { transform: translateY(2px); box-shadow: 0 2px #999; }
+        .oper { background-color: #DAA520; color: #000; }
+        .raiz { background-color: #DAA52080; color: #000; }
+        .pot { background-color: #A0522D90; color: #000; }
+        
+        #apagar { background-color: #f39c12; color: #fff; font-size: 16px; font-weight: bold; }
+        #limpar-tudo { background-color: #e74c3c; color: #fff; font-size: 16px; font-weight: bold; }
+        .igual { background-color: green; color: #fff; font-weight: bold; }
+        #mmql { background-color: #D2691E80; color: #fff; }
+
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="jjm">JJM calculadora</div>
+    <div class="display">
+        <h3>Equação</h3>
+        <h2 id="history"></h2>
+        <input type="text" id="display" readonly value="">
+    </div>
+
+    <div class="row">
+        <button type="button" class="button" onclick="add_numero('7')">7</button>
+        <button type="button" class="button" onclick="add_numero('8')">8</button>
+        <button type="button" class="button" onclick="add_numero('9')">9</button>
+        <button type="button" class="button oper" onclick="add_operador('/')">÷</button>
+        <button type="button" class="btn raiz" onclick="sqrt()">√</button>
+        <button type="button" class="btn raiz" onclick="nthRoot()">ⁿ√</button>
+    </div>
+
+    <div class="row">
+        <button type="button" class="button" onclick="add_numero('4')">4</button>
+        <button type="button" class="button" onclick="add_numero('5')">5</button>
+        <button type="button" class="button" onclick="add_numero('6')">6</button>
+        <button type="button" class="button oper" onclick="add_operador('*')">x</button>
+        <button type="button" class="btn pot" onclick="square()">x²</button>
+        <button type="button" class="button pot" onclick="power()">xⁿ</button>
+    </div>
+
+    <div class="row">
+        <button type="button" class="button" onclick="add_numero('1')">1</button>
+        <button type="button" class="button" onclick="add_numero('2')">2</button>
+        <button type="button" class="button" onclick="add_numero('3')">3</button>
+        <button type="button" class="button oper" onclick="add_operador('-')">–</button>
+        <button type="button" id="apagar" class="button" onclick="deleteChar()">←</button>
+        <button type="button" id="limpar-tudo" class="button" onclick="limpar()">C</button>
+    </div>
+
+    <div class="row">
+        <button type="button" class="button" onclick="add_numero('.')">.</button>
+        <button type="button" class="button" onclick="add_numero('0')">0</button>
+        <button type="button" id="mmql" class="btn" onclick="changeSign()">±</button>
+        <button type="button" class="button oper" onclick="add_operador('+')">+</button>
+        <button type="button" class="button oper" onclick="percent()">%</button>
+        <button type="button" class="button igual" onclick="total()">=</button>
+    </div>
+</div>
+
+<script>
+    var input = document.getElementById("display");
+    var historyDisplay = document.getElementById("history");
+    var operador = "";
+    var parar = false;
+
+    function limpar() {
+        input.value = "";
+        historyDisplay.innerHTML = "";
+        operador = "";
+        parar = false;
+    }
+
+    function formatarResultado(res) {
+        // Limita a 2 casas decimais e remove zeros à direita inúteis
+        return Number(res.toFixed(2)).toString();
+    }
+
+    function add_numero(char) {
+        if (parar) limpar();
+        if (char === '.') {
+            var atual = input.value.split(/[\+\-\*\/^]|root/).pop();
+            if (atual.includes('.')) return;
+            if (atual === "") input.value += "0";
+        }
+        input.value += char;
+        historyDisplay.innerHTML = input.value;
+    }
+
+    function add_operador(op) {
+        if (input.value === "") input.value = "0";
+        if (parar) { parar = false; }
+        
+        // Se já termina em operador, substitui
+        if (/[\+\-\*\/^]$/.test(input.value)) {
+            input.value = input.value.slice(0, -1);
+        } else if (input.value.endsWith('root')) {
+            input.value = input.value.slice(0, -4);
+        }
+
+        operador = op;
+        input.value += (op === 'root' ? 'root' : op);
+        historyDisplay.innerHTML = input.value;
+    }
+
+    function total() {
+        if (operador === "" || input.value === "") return;
+        let partes = input.value.split(operador === 'root' ? 'root' : operador);
+        let n1 = Number(partes[0]);
+        let n2 = Number(partes[1]);
+        if (isNaN(n2)) n2 = n1;
+
+        let res;
+        switch(operador) {
+            case '+': res = n1 + n2; break;
+            case '-': res = n1 - n2; break;
+            case '*': res = n1 * n2; break;
+            case '/': res = n1 / n2; break;
+            case '^': res = Math.pow(n1, n2); break;
+            case 'root': res = Math.pow(n1, 1/n2); break;
+        }
+        input.value = formatarResultado(res);
+        historyDisplay.innerHTML += " =";
+        parar = true;
+    }
+
+    function percent() {
+        if (input.value === "") return;
+        let res = Number(input.value) / 100;
+        historyDisplay.innerHTML = input.value + "%";
+        input.value = formatarResultado(res);
+        parar = true;
+    }
+
+    function square() {
+        let n = Number(input.value || 0);
+        historyDisplay.innerHTML = n + "²";
+        input.value = formatarResultado(n * n);
+        parar = true;
+    }
+
+    function sqrt() {
+        let n = Number(input.value || 0);
+        historyDisplay.innerHTML = "√" + n;
+        input.value = formatarResultado(Math.sqrt(n));
+        parar = true;
+    }
+
+    function deleteChar() {
+        if (parar) { limpar(); return; }
+        if (input.value.endsWith('root')) input.value = input.value.slice(0, -4);
+        else input.value = input.value.slice(0, -1);
+        historyDisplay.innerHTML = input.value;
+    }
+
+    function changeSign() {
+        if (input.value === "") return;
+        input.value = (Number(input.value) * -1).toString();
+        historyDisplay.innerHTML = input.value;
+    }
+
+    function power() { add_operador('^'); }
+    function nthRoot() { add_operador('root'); }
+
+    // MAPEAMENTO DO TECLADO FÍSICO
+    document.addEventListener('keydown', (e) => {
+        if (!isNaN(e.key)) add_numero(e.key);
+        else if (['+', '-', '*', '/'].includes(e.key)) add_operador(e.key);
+        else if (e.key === '.') add_numero('.');
+        else if (e.key === 'Enter') { e.preventDefault(); total(); }
+        else if (e.key === 'Backspace') { e.preventDefault(); deleteChar(); }
+        else if (e.key === 'Escape') limpar();
+        else if (e.key === '%') percent();
+    });
+</script>
+</body>
+</html>
