@@ -1,233 +1,309 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <title>Calculadora JJM</title>
-    <style>
-        body {
-            background-color: #c1c1c1;
-            align-items: center;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
-        }
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Calculadora JJM</title>
 
-        .jjm { text-align: left; padding-left: 10%; font-weight: bold; color: #555; }
+   <style>
+      body {
+         font-family: Arial, sans-serif;
+         background-color: #1E90FF;
+         min-height:300vh;
+         margin: 0;
+         padding: 0;
+         overflow: hidden;
+      }
 
-        .calculator {
-            background-color: silver;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 500px;
-            border: solid #80808090 1px;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 12px 12px 7px rgba(0,0,0,.25), -6px -6px 1px rgba(0,0,0,.1);
-        }
+      /* --- CALCULADORA --- */
+      .calculator {
+         position: fixed;
+   display: flex;
+   flex-direction: column;
+   resize: none; /* continua usando o seu handle personalizado */
+         width: 20%;
+         min-width: 150px;
+   height: auto; /* mas pode crescer */
+   min-height: 370px; 
+         top: 15vh;
+         left: 10vw;         
+    background-color: silver;
+    border: 0.2vh solid red;
+    border-radius: 2vh;
+    box-shadow: 0 2vh 4vh rgba(0, 0, 0, 0.6);
+       padding: 1%;
+       z-index: 2000;
+      }
 
-        .row {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-bottom: 10px;
-            justify-content: center;
-        }
+      /* --- HEADER / ÁREA DE ARRASTAR --- */
+      .header {
+         color: #fff;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
 
-        .display { text-align: right; margin-bottom: 15px; }
-        .display h3 { color: #ba4a00; font-size: 14px; margin: 0; height: 20px; }
-        .display h2 { 
-            height: 35px; font-size: 24px; background: #3498db; color: #fff; 
-            border: 2px solid #696969; border-radius: 5px; padding: 5px; margin: 5px 0;
-            overflow: hidden;
-        }
+         font-size: 2vh;
+         margin-bottom: 1vh;
+         padding: 1vh;
+         background-color: #2c363d;
+         border-radius: 1vh;
+         cursor: move;
+         user-select: none;
+      }
 
-        .display input {
-            width: 100%; box-sizing: border-box; background: #3498db; border: 2px solid #696969;
-            border-radius: 5px; font-size: 40px; text-align: right; padding: 10px; color: #fff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
+      /* --- VISOR --- */
+      #numero {
+         width: 100%;
+      height: 10vh;      /* altura fixa proporcional */
+   font-size: 7vh;    /* texto grande e responsivo */
+         margin-bottom: 1vh;
+         padding: 1vh;
+         text-align: right;
+         border: 1px solid indigo;
+         border-radius: 1vh;
+         background-color: #2cff05;
+         color: #2323ff;
+         outline: none;
+         box-sizing: border-box;
+      }
 
-        .button, .oper, .btn {
-            height: 60px; border-radius: 10px; font-size: 20px; cursor: pointer; border: none;
-            background-color: white; color: tomato; transition: transform 0.1s;
-            box-shadow: 0 4px #bbb;
-        }
+      /* GRADE DE BOTÕES */
+      .buttons {
+      height: calc(100% - 12vh - 2vh); /* 12vh do visor, 2vh de margens */
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   grid-auto-rows: 1fr;  /* Faz as linhas crescerem uniformemente */
+   gap: 1vh;
+      }
 
-        .button:active { transform: translateY(2px); box-shadow: 0 2px #999; }
-        .oper { background-color: #DAA520; color: #000; }
-        .raiz { background-color: #DAA52080; color: #000; }
-        .pot { background-color: #A0522D90; color: #000; }
-        
-        #apagar { background-color: #f39c12; color: #fff; font-size: 16px; font-weight: bold; }
-        #limpar-tudo { background-color: #e74c3c; color: #fff; font-size: 16px; font-weight: bold; }
-        .igual { background-color: green; color: #fff; font-weight: bold; }
-        #mmql { background-color: #D2691E80; color: #fff; }
+      .buttons button {
+       width: 100%;
+   height: 100%;
+   padding: 0;
+   margin: 0;
+   font-size: 3vh; /* aumenta junto com o tamanho dos botões */
+       /*  padding: 1vh;*/
+         border-radius: 1vh;
+       /*  font-size: 4vh;*/
+         font-family: Verdana;
+         box-shadow: rgba(45, 35, 66, .4) 0 2px 4px,
+                     rgba(45, 35, 66, .3) 0 7px 13px -3px,
+                     rgba(58, 65, 111, .5) 0 -3px 0 inset;
+      }
 
-    </style>
+      .buttons button:hover {
+         transform: scale(1.04);
+         background-color: #D2691E;
+         color: #fff;
+      }
+
+      .buttons button:active {
+         transform: scale(0.97);
+         box-shadow: inset 0 0 7px rgba(0,0,0,.2);
+      }
+
+      .number { background-color: skyblue; }
+      .operator { background-color: #ff9500; }
+      .clear { background-color: #ff3b30; }
+      .equals {
+         background-color: #34c759;
+         grid-column: span 2;
+      }
+
+      /* --- HANDLE DE REDIMENSIONAMENTO --- */
+      .resize-handle {
+         position: absolute;
+         width: 2.5vh;
+         height: 2.5vh;
+         right: 0;
+         bottom: 0;
+         cursor: se-resize;
+      }
+
+      .resize-handle::after {
+         content: "";
+         position: absolute;
+         right: 0;
+         bottom: 0;
+         width: 100%;
+         height: 100%;
+         border-right: 0.6vh solid #333;
+         border-bottom: 0.6vh solid #333;
+         box-sizing: border-box;
+      }
+
+      /* --- RESPONSIVIDADE --- */
+      @media (max-width: 768px) {
+         .calculator {
+            width: 85%;
+         }
+
+         #numero {
+            height: 12vh;
+            font-size: 7vh;
+         }
+
+         .buttons button {
+            height: 8vh;
+         }
+      }
+   </style>
 </head>
+
 <body>
 
-<div class="calculator">
-    <div class="jjm">JJM calculadora</div>
-    <div class="display">
-        <h3>Equação</h3>
-        <h2 id="history"></h2>
-        <input type="text" id="display" readonly value="">
-    </div>
+   <div class="calculator" id="draggableCalculator">
+      
+      <div class="header" id="dragHeader">
+         <span style="margin-left: 1vh;">JJM</span>
+      </div>
 
-    <div class="row">
-        <button type="button" class="button" onclick="add_numero('7')">7</button>
-        <button type="button" class="button" onclick="add_numero('8')">8</button>
-        <button type="button" class="button" onclick="add_numero('9')">9</button>
-        <button type="button" class="button oper" onclick="add_operador('/')">÷</button>
-        <button type="button" class="btn raiz" onclick="sqrt()">√</button>
-        <button type="button" class="btn raiz" onclick="nthRoot()">ⁿ√</button>
-    </div>
+      <input type="text" id="numero" disabled placeholder="0">
 
-    <div class="row">
-        <button type="button" class="button" onclick="add_numero('4')">4</button>
-        <button type="button" class="button" onclick="add_numero('5')">5</button>
-        <button type="button" class="button" onclick="add_numero('6')">6</button>
-        <button type="button" class="button oper" onclick="add_operador('*')">x</button>
-        <button type="button" class="btn pot" onclick="square()">x²</button>
-        <button type="button" class="button pot" onclick="power()">xⁿ</button>
-    </div>
+      <div class="buttons">
+         <button class="clear" onclick="clearDisplay()">C</button>
+         <button class="operator" onclick="calculateRootN()">ⁿ√</button>
+         <button class="operator" onclick="appendValue('**')">xⁿ</button>
+         <button class="operator" onclick="appendValue('/')">÷</button>
 
-    <div class="row">
-        <button type="button" class="button" onclick="add_numero('1')">1</button>
-        <button type="button" class="button" onclick="add_numero('2')">2</button>
-        <button type="button" class="button" onclick="add_numero('3')">3</button>
-        <button type="button" class="button oper" onclick="add_operador('-')">–</button>
-        <button type="button" id="apagar" class="button" onclick="deleteChar()">←</button>
-        <button type="button" id="limpar-tudo" class="button" onclick="limpar()">C</button>
-    </div>
+         <button class="number" onclick="appendValue('7')">7</button>
+         <button class="number" onclick="appendValue('8')">8</button>
+         <button class="number" onclick="appendValue('9')">9</button>
+         <button class="operator" onclick="appendValue('*')">x</button>
 
-    <div class="row">
-        <button type="button" class="button" onclick="add_numero('.')">.</button>
-        <button type="button" class="button" onclick="add_numero('0')">0</button>
-        <button type="button" id="mmql" class="btn" onclick="changeSign()">±</button>
-        <button type="button" class="button oper" onclick="add_operador('+')">+</button>
-        <button type="button" class="button oper" onclick="percent()">%</button>
-        <button type="button" class="button igual" onclick="total()">=</button>
-    </div>
-</div>
+         <button class="number" onclick="appendValue('4')">4</button>
+         <button class="number" onclick="appendValue('5')">5</button>
+         <button class="number" onclick="appendValue('6')">6</button>
+         <button class="operator" onclick="appendValue('-')">-</button>
 
-<script>
-    var input = document.getElementById("display");
-    var historyDisplay = document.getElementById("history");
-    var operador = "";
-    var parar = false;
+         <button class="number" onclick="appendValue('1')">1</button>
+         <button class="number" onclick="appendValue('2')">2</button>
+         <button class="number" onclick="appendValue('3')">3</button>
+         <button class="operator" onclick="appendValue('+')">+</button>
 
-    function limpar() {
-        input.value = "";
-        historyDisplay.innerHTML = "";
-        operador = "";
-        parar = false;
-    }
+         <button class="number" onclick="appendValue('0')">0</button>
+         <button class="number" onclick="appendValue('.')">.</button>
+         <button class="equals" onclick="calculateResult()">=</button>
+      </div>
 
-    function formatarResultado(res) {
-        // Limita a 2 casas decimais e remove zeros à direita inúteis
-        return Number(res.toFixed(2)).toString();
-    }
+      <!-- Handle de redimensionamento -->
+      <div class="resize-handle"></div>
 
-    function add_numero(char) {
-        if (parar) limpar();
-        if (char === '.') {
-            var atual = input.value.split(/[\+\-\*\/^]|root/).pop();
-            if (atual.includes('.')) return;
-            if (atual === "") input.value += "0";
-        }
-        input.value += char;
-        historyDisplay.innerHTML = input.value;
-    }
+   </div>
 
-    function add_operador(op) {
-        if (input.value === "") input.value = "0";
-        if (parar) { parar = false; }
-        
-        // Se já termina em operador, substitui
-        if (/[\+\-\*\/^]$/.test(input.value)) {
-            input.value = input.value.slice(0, -1);
-        } else if (input.value.endsWith('root')) {
-            input.value = input.value.slice(0, -4);
-        }
+   <script>
+      const visor = document.getElementById('numero');
+      const calculator = document.getElementById('draggableCalculator');
+      const dragHeader = document.getElementById('dragHeader');
+      const resizeHandle = document.querySelector(".resize-handle");
 
-        operador = op;
-        input.value += (op === 'root' ? 'root' : op);
-        historyDisplay.innerHTML = input.value;
-    }
+      // ---------------- CALCULADORA -----------------
 
-    function total() {
-        if (operador === "" || input.value === "") return;
-        let partes = input.value.split(operador === 'root' ? 'root' : operador);
-        let n1 = Number(partes[0]);
-        let n2 = Number(partes[1]);
-        if (isNaN(n2)) n2 = n1;
+      function calculateRootN() {
+         appendValue('**(1/');
+      }
 
-        let res;
-        switch(operador) {
-            case '+': res = n1 + n2; break;
-            case '-': res = n1 - n2; break;
-            case '*': res = n1 * n2; break;
-            case '/': res = n1 / n2; break;
-            case '^': res = Math.pow(n1, n2); break;
-            case 'root': res = Math.pow(n1, 1/n2); break;
-        }
-        input.value = formatarResultado(res);
-        historyDisplay.innerHTML += " =";
-        parar = true;
-    }
+      function appendValue(value) {
+         if (visor.value === 'Erro' || visor.value === 'Infinity') {
+            visor.value = '';
+         }
 
-    function percent() {
-        if (input.value === "") return;
-        let res = Number(input.value) / 100;
-        historyDisplay.innerHTML = input.value + "%";
-        input.value = formatarResultado(res);
-        parar = true;
-    }
+         if (visor.value === '0' && !isNaN(value) && value !== '.') {
+            visor.value = value;
+         } else if (value === '**' && visor.value.endsWith('**')) {
+            return;
+         } else {
+            visor.value += value;
+         }
+      }
 
-    function square() {
-        let n = Number(input.value || 0);
-        historyDisplay.innerHTML = n + "²";
-        input.value = formatarResultado(n * n);
-        parar = true;
-    }
+      function clearDisplay() {
+         visor.value = '0';
+      }
 
-    function sqrt() {
-        let n = Number(input.value || 0);
-        historyDisplay.innerHTML = "√" + n;
-        input.value = formatarResultado(Math.sqrt(n));
-        parar = true;
-    }
+      function calculateResult() {
+         try {
+            let expression = visor.value;
 
-    function deleteChar() {
-        if (parar) { limpar(); return; }
-        if (input.value.endsWith('root')) input.value = input.value.slice(0, -4);
-        else input.value = input.value.slice(0, -1);
-        historyDisplay.innerHTML = input.value;
-    }
+            if ((expression.match(/\(/g) || []).length > (expression.match(/\)/g) || []).length) {
+               expression += ')';
+            }
 
-    function changeSign() {
-        if (input.value === "") return;
-        input.value = (Number(input.value) * -1).toString();
-        historyDisplay.innerHTML = input.value;
-    }
+            let result = eval(expression);
 
-    function power() { add_operador('^'); }
-    function nthRoot() { add_operador('root'); }
+            if (!isFinite(result)) {
+               visor.value = "Erro";
+            } else {
+               visor.value = Number.isInteger(result)
+                  ? result
+                  : result.toFixed(2).replace(/\.?0+$/, "");
+            }
 
-    // MAPEAMENTO DO TECLADO FÍSICO
-    document.addEventListener('keydown', (e) => {
-        if (!isNaN(e.key)) add_numero(e.key);
-        else if (['+', '-', '*', '/'].includes(e.key)) add_operador(e.key);
-        else if (e.key === '.') add_numero('.');
-        else if (e.key === 'Enter') { e.preventDefault(); total(); }
-        else if (e.key === 'Backspace') { e.preventDefault(); deleteChar(); }
-        else if (e.key === 'Escape') limpar();
-        else if (e.key === '%') percent();
-    });
-</script>
+         } catch (e) {
+            visor.value = 'Erro';
+         }
+      }
+
+      clearDisplay();
+
+      // ---------------- ARRASTAR -----------------
+
+      let isDragging = false;
+      let offset = { x: 0, y: 0 };
+
+      dragHeader.addEventListener('mousedown', function (e) {
+          isDragging = true;
+          const rect = calculator.getBoundingClientRect();
+          offset.x = e.clientX - rect.left;
+          offset.y = e.clientY - rect.top;
+      });
+
+      document.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+
+          let newX = e.clientX - offset.x;
+          let newY = e.clientY - offset.y;
+
+          const maxX = window.innerWidth - calculator.offsetWidth;
+          const maxY = window.innerHeight - calculator.offsetHeight;
+
+          if (newX < 0) newX = 0;
+          if (newX > maxX) newX = maxX;
+
+          if (newY < 0) newY = 0;
+          if (newY > maxY) newY = maxY;
+
+          calculator.style.left = newX + "px";
+          calculator.style.top = newY + "px";
+      });
+
+      document.addEventListener('mouseup', function () {
+          isDragging = false;
+          isResizing = false;
+      });
+
+      // ---------------- REDIMENSIONAR -----------------
+
+      let isResizing = false;
+
+      resizeHandle.addEventListener("mousedown", function (e) {
+         e.preventDefault();
+         isResizing = true;
+      });
+
+      document.addEventListener("mousemove", function (e) {
+         if (!isResizing) return;
+
+         let newWidth = e.clientX - calculator.getBoundingClientRect().left;
+         let newHeight = e.clientY - calculator.getBoundingClientRect().top;
+
+         const minWidth = 150;
+         const minHeight = 250;
+
+         if (newWidth > minWidth) calculator.style.width = newWidth + "px";
+         if (newHeight > minHeight) calculator.style.height = newHeight + "px";
+      });
+   </script>
+
 </body>
 </html>
-
